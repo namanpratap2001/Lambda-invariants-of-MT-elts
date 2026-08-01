@@ -194,22 +194,29 @@ def pot_red(E,p):
     print(F.local_data(J))
     return (K, red)
 
+def vpdelta(E,p):
+ #this is ord_p(minimal discriminant of E)
+    data= EllipticCurveLocalData(E,p)
+    return data.discriminant_valuation()
+def e(E,p):
+  return 12/gcd(12,vpdelta(E,p)) #we get the semistability defect e= 12/gcd(12,ord_pdelta), see Equation 3.1 in [LPP]
 
-p=11
-n=12
-vpdelta=2   #this is ord_p(minimal discriminant of E)
-e= 12/gcd(12,vpdelta)  #we get the semistability defect e= 12/gcd(12,ord_pdelta), see Equation 3.1 in [LPP]
-
-def m(p, n, vpdelta): 
-    return (p^n)*vpdelta/12 
-
-m2=(p^(n-1))*vpdelta/12
-
-def f(p, n, vpdelta):   #this computes the contribution by the period ratios to the p-adic valuation of the algebraic part of the L-value of E/Q twisted by a character on G_n
-   return floor(m(p,n, vpdelta))- floor(m(p,n-1, vpdelta))   
+def m(E, p, n): 
+    return (p^n)*vpdelta(E,p)/12 
 
 
+
+def f(E, p, n):   #this computes the contribution by the period ratios to the p-adic valuation of the algebraic part of the L-value of E/Q twisted by a character on G_n
+   return floor(m(E, p,n))- floor(m(E,p,n-1))   
+
+E=EllipticCurve("4232i1")
+p=23
+n=3
+print(pot_red(E,p))
+
+mt=mt_ec(E,p,n)
 
 lambda_n=lambda_inv(mt_to_poly(mt,p,n))
 
-lambda_n-f_n
+print(lambda_n-f(E,p,n)) 
+print(lambda_n-f(E,p,n) - 16*q_n(p,n))
