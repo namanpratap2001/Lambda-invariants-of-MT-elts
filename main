@@ -1,5 +1,5 @@
 #This is mostly identical to Anthony Doyon's code available here:   
-#All credits to Anthony Doyon, Antonio Lei for --  as well as Robert Pollack for his code available at -- 
+#All credits to Anthony Doyon, Antonio Lei for https://github.com/anthonydoyon/Ramanujan-s-tau-and-MT-elts/blob/master/cong.sagews as well as Robert Pollack for his code available at https://github.com/rpollack9974/Iwasawa-invariants 
 
 
 def mt_ec(E,p,n):
@@ -205,10 +205,10 @@ def m(p, n, vpdelta):
 
 m2=(p^(n-1))*vpdelta/12
 
-def f(p, n):
-   return floor(m(p,n)
+def f(p, n, vpdelta):   #this computes the contribution by the period ratios to the p-adic valuation of the algebraic part of the L-value of E/Q twisted by a character on G_n
+   return floor(m(p,n, vpdelta))- floor(m(p,n-1, vpdelta))   
 
-f_n=floor(m1)-floor(m2)
+
 
 lambda_n=lambda_inv(mt_to_poly(mt,p,n))
 
