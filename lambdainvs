@@ -1,0 +1,166 @@
+
+import time
+def MazurTate(E,p,n,phi=None,twist=0,modp=false,logfile=None,bigcallfile=None,bigcall=infinity): 
+#This is verbatim Rob Pollack's code (available here: ) , the modp option speeds up the computation for the lambda invariant, but one must be careful to check if mu is 0.
+    """
+    Returns the p-adic Mazur-Tate element of level n.  That is, for p odd, we take the element
+
+        sum_{a in (Z/p^{n+1}}Z)^*} [a/p^{n+1}]^+_E sigma_a
+
+    in Q[Gal(Q(mu_{p^{n+1}}))] and project it to Q[Gal(Q_n/Q)] where Q_n is the
+    n-th level of the cyclotomic Z_p-extension.  The projection here is twisted by omega^twist so
+    that the group algebra element [a] maps to omega^twist(a)[a].
+    (For p=2, one projects from level n+2, see Kurihara-Otsuki)
+
+    Input:
+
+    -   ``E`` -- elliptic curve
+
+    -   ``p`` -- prime
+
+    -   ``n`` -- integer >= -1
+
+    -   ``phi`` -- None (default) or an order pair where phi[0] is the modular symbol attached
+        to an elliptic curve in the isogeny class of E (typically chosen to minimize the mu-invariant
+        in the isogeny class) and phi[1] is a constant used to rescale phi[0] (typically chosen to be
+        1/(# of real components of E).  This ordered pair business can be dropped once SAGE's
+        normalization problems with modular symbols is fixed
+
+    -   ``twist`` -- 0 (default) or an integer between 0 and p-2 denoting the twist described above
+
+    -   ``logfile`` -- None (default) or string; if given then information about the computation is outputted
+        to the file ``logfile``
+
+    -   ``bigcallfile`` -- string (see below)
+
+    -   ``bigcall`` -- infinity (Default) or some real number.  When specified, writes info to bigcallfile
+        if the call to this function makes longer than ``bigcall``
+    """
+    if logfile != None:
+        line = "   Computing Mazur-Tate at level " + str(n) + '\n'
+        write_to_file(logfile, line)
+
+    start = time.time()
+
+    if phi == None:
+        phi = (E.modular_symbol(), 1/E.real_components())
+
+    if modp and (p != 2):
+        R.<T> = PolynomialRing(GF(p))
+    else:
+        R.<T> = PolynomialRing(QQ)
+
+    if n == -1:
+        ans = R(phi[0](0) * phi[1])
+    else:
+        mt = R(0)
+
+        if p > 2:
+            gam = 1 + p
+            Qp = pAdicField(p, 2*n + 5)   ## should check carefully the accuracy needed here
+            teich = Qp.teichmuller_system()
+            teich = [0] + teich   ## makes teich[a] = omega(a)
+            teich = [ZZ(teich[a]) for a in range(p)]
+
+            gampow = 1            ## will make gampow = gam^pow
+            oneplusTpow = 1       ## will make oneplusTpow = (1+T)^pow
+
+            for j in range(p^n):
+                if twist == 0:
+                    cj = sum([phi[0](gampow * teich[a] / p^(n+1))
+                              for a in range(1, (p+1)/2)])
+                else:
+                    cj = sum([teich[a]^twist * phi[0](gampow * teich[a] / p^(n+1))
+                              for a in range(1, (p+1)/2)])
+
+                mt = mt + R(cj) * oneplusTpow
+                gampow = gampow * gam
+                oneplusTpow = oneplusTpow * (1 + T)
+                #print(j)
+
+            end = time.time()
+            t = end - start
+
+            if t >= bigcall:
+                line = E.label() + ": p=" + str(p) + ", n=" + str(n)
+                line += ", time: " + str(end - start) + "\n"
+                write_to_file(bigcallfile, line)
+
+            ans = 2 * R(mt) * R(phi[1])
+            ## extra factor of 2 here is because we are only summing up to (p-1)/2
+            ## and using the + modular symbol
+
+        else:
+            assert n >= 0, "n must be non-negative when p=2"
+
+            ap = E.ap(2)
+
+            if n == 0:
+                return R((ap^2 - 2*ap - 1) * phi[0](0) * phi[1])
+
+            else:
+                gam = 5
+                Qp = pAdicField(p, 2*n + 5)   ## Should check carefully the accuracy needed here
+
+                gampow = 1
+                oneplusTpow = 1
+
+                for j in range(p^n):
+                    cj = phi[0](gampow/p^(n+2))
+                    mt = mt + cj * oneplusTpow
+                    gampow = gampow * gam
+                    oneplusTpow = oneplusTpow * (1 + T)
+
+                end = time.time()
+                t = end - start
+
+                if t >= bigcall:
+                    line = E.label() + ": p=" + str(p) + ", n=" + str(n)
+                    line += ", time: " + str(end - start) + "\n"
+                    write_to_file(bigcallfile, line)
+
+                ans = 2 * R(mt) * phi[1]
+                ## extra factor of 2 here arises because we are only summing over half of the
+                ## terms in the sum (only compute one of [a/2^n] and [(2^n-a)/2^n])
+
+    end = time.time()
+
+    if logfile != None:
+        line = "   -Finished in " + str(round(end - start, 2)) + '\n'
+        write_to_file(logfile, line)
+
+    return ans
+
+
+def mu_inv(poly,p):
+    """
+    Returns the Iwasawa mu-invariant for p of a polynomial.
+    """
+    if poly == 0:
+        return oo
+    else:
+        return min([poly[a].valuation(p) for a in range(poly.degree()+1)])
+#need to be careful in using these if one has been using modp=true in the MazurTate(...) command, namely, ensure mu=0 by scaling if needed. 
+def lambda_inv(poly,p):
+    """
+    Returns the Iwasawa lambda-invariant for p of a polynomial.
+    This algorithm differs from the ones currently used because most of our computations are done for polynomials of mu-invariant = 0.
+    """
+    m = mu_inv(poly,p)
+    if poly == 0:
+        return oo
+    else:
+        v = [poly[a].valuation(p) for a in range(poly.degree() + 1)]
+        return v.index(m)
+
+
+##Example: 
+E=EllipticCurve("2890h1")
+p=17
+
+for n in range(1,8):  #for n>4 it takes a while :(
+    mtn=MazurTate(E, p,n, modp=true)
+    print(lambda_inv(mtn, p), 3*p^(n-1)+1)
+    
+ 
+
