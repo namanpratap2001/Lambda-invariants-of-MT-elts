@@ -1,0 +1,55 @@
+
+Outputs of the following code (refer to the file "lambdainvs with example")
+
+E=EllipticCurve("121c1")
+p=11
+import time
+
+print(f"E= {E.cremona_label()}, p={p}, {E}")
+print(f"ord_p(\Delta_E)={vpdelta(E,p)}, semi-stability defect e={e(E,p)}")
+
+for n in range(1,8):
+    mtn=MazurTate(E, p,n, modp=true)
+    lambda_n=lambda_inv(mtn, p)
+    print(f"n={n}, lambda(theta_n(E))= {lambda_n}, expected formula:7*p^(n-1)={7*p^(n-1)}, error={lambda_n-7*p^(n-1)}")
+    
+E=121c1, p=11, Elliptic Curve defined by y^2 + x*y = x^3 + x^2 - 2*x - 7 over Rational Field
+ord_p(\Delta_E)=4, semi-stability defect e=3
+n=1, lambda(theta_n(E))= 7, expected formula:7*p^(n-1)=7, error=0
+n=2, lambda(theta_n(E))= 77, expected formula:7*p^(n-1)=77, error=0
+n=3, lambda(theta_n(E))= 847, expected formula:7*p^(n-1)=847, error=0
+n=4, lambda(theta_n(E))= 9317, expected formula:7*p^(n-1)=9317, error=0
+n=5, lambda(theta_n(E))= 102487, expected formula:7*p^(n-1)=102487, error=0
+
+E=968d1, p=11, Elliptic Curve defined by y^2 = x^3 - 11*x + 22 over Rational Field
+ord_p(\Delta_E)=2, semi-stability defect e=6
+n=1, lambda(theta_n(E))= 2, expected formula:2*p^(n-1)=2, error=0
+n=2, lambda(theta_n(E))= 22, expected formula:2*p^(n-1)=22, error=0
+n=3, lambda(theta_n(E))= 242, expected formula:2*p^(n-1)=242, error=0
+n=4, lambda(theta_n(E))= 2662, expected formula:2*p^(n-1)=2662, error=0
+n=5, lambda(theta_n(E))= 29282, expected formula:2*p^(n-1)=29282, error=0
+
+E=2890e1, p=17, Elliptic Curve defined by y^2 + x*y + y = x^3 + 716*x - 10284 over Rational Field
+ord_p(\Delta_E)=8, semi-stability defect e=3
+n=1, lambda(theta_n(E))= 11, expected formula:11*p^(n-1)=11, error=0
+n=2, lambda(theta_n(E))= 187, expected formula:11*p^(n-1)=187, error=0
+n=3, lambda(theta_n(E))= 3179, expected formula:11*p^(n-1)=3179, error=0
+n=4, lambda(theta_n(E))= 54043, expected formula:11*p^(n-1)=54043, error=0
+n=5, lambda(theta_n(E))= 918731, expected formula:11*p^(n-1)=918731, error=0
+
+E=2890h1, p=17, Elliptic Curve defined by y^2 + x*y = x^3 + x^2 + 3*x - 1 over Rational Field
+ord_p(\Delta_E)=2, semi-stability defect e=6
+n=1, lambda(theta_n(E))= 4, expected formula:3*p^(n-1)+1=4, error=0
+n=2, lambda(theta_n(E))= 52, expected formula:3*p^(n-1)+1=52, error=0
+n=3, lambda(theta_n(E))= 868, expected formula:3*p^(n-1)+1=868, error=0
+n=4, lambda(theta_n(E))= 14740, expected formula:3*p^(n-1)+1=14740, error=0
+n=5, lambda(theta_n(E))= 250564, expected formula:3*p^(n-1)+1=250564, error=0
+
+
+
+
+
+
+
+
+
