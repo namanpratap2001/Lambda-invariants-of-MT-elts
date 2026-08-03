@@ -1,7 +1,10 @@
 
 import time
+#For further details, please see our paper [LPP]: 
+
 def MazurTate(E,p,n,phi=None,twist=0,modp=false,logfile=None,bigcallfile=None,bigcall=infinity): 
-#This is verbatim Rob Pollack's code (available here: ) , the modp option speeds up the computation for the lambda invariant, but one must be careful to check if mu is 0.
+#This is verbatim Rob Pollack's code (available here: https://github.com/rpollack9974/Iwasawa-invariants/blob/master/IwInv.sage) 
+#the modp option speeds up the computation for the lambda invariant, but one must be careful to check if mu is 0.
     """
     Returns the p-adic Mazur-Tate element of level n.  That is, for p odd, we take the element
 
@@ -153,6 +156,36 @@ def lambda_inv(poly,p):
         v = [poly[a].valuation(p) for a in range(poly.degree() + 1)]
         return v.index(m)
 
+def q_n(p,n):
+    """
+    Computes an error term involved in the calculation of the lambda-invariant of elliptic curves with supersingular reduction at p.
+    Input:
+    p -- An odd prime
+    n -- A positive integer
+    Output:
+    The supersingular error term q_p,n defined as in Pollack-Weston 2009 section 1.
+    """
+    ans = 0
+    if n % 2 == 0:
+        for i in range(n):
+            ans += (-1)^(i+1)*p^i
+    else:
+        for i in range(1,n):
+            ans += (-p)^i
+    return ans
+
+def vpdelta(E,p):
+ #this is ord_p(minimal discriminant of E)
+    data= E.local_data(p)
+    return data.discriminant_valuation()
+def e(E,p):
+  return 12/gcd(12,vpdelta(E,p)) #we get the semistability defect e= 12/gcd(12,ord_pdelta), see Equation 3.1 in [LPP]
+
+def m(E, p, n): 
+    return (p^n)*vpdelta(E,p)/12 
+
+def f(E, p, n):   #this computes the contribution by the period ratios to the p-adic valuation of the algebraic part of the L-value of E/Q twisted by a character on G_n
+   return floor(m(E, p,n))- floor(m(E,p,n-1))   
 
 ##Example: 
 E=EllipticCurve("2890h1")
@@ -160,7 +193,57 @@ p=17
 
 for n in range(1,8):  #for n>4 it takes a while :(
     mtn=MazurTate(E, p,n, modp=true)
-    print(lambda_inv(mtn, p), 3*p^(n-1)+1)
+    lambda_n=lambda_inv(mtn, p)
+    print(f"lambda(theta_n(E))= {lambda_inv(mtn, p)}, expected formula:3*p^(n-1)+1={3*p^(n-1)+1}")
+      #in this case the formula seems to be: 3*p^(n-1)+1
     
- 
+for n in range(1,8):
+    print(3*p^(n-1)+1 - f(E,p,n) - 6*q_n(p,n-1))   #this is how we obtain the final column in Table 1 of [LPP], we used trial and error to obtain the multiplier for q_n
+#note that the data is used to guess the formula 3*p^(n-1)+1, after that, we compare this formula to the f(E,p,n) (called f_n in [LPP]) to get the q_n like terms.
+
+
+
+
+
+
+#Check potential reduction type for a given E and p: 
+def pot_red(E,p):
+    """
+    Returns data concerning the potential reduction at p of an elliptic curve E having additive reduction at p.
+    Input:
+    E -- An elliptic curve (over Q)
+    p -- A prime
+    Output:
+    A tuple (K, red) where K is a finite extension of Q where E attains a non-additive reduction red.
+    """
+    R,t = QQ['t'].objgen()
+    i = 0
+    done = False
+    list_deg = [2, 3, 4, 6, 12]
+    while not(done) and i <= 4:
+        m = list_deg[i]
+        n = 0
+        while n <= 12:
+            n += 1
+            if (t^m - n*p).is_irreducible():
+                K = NumberField(x^m - n*p, "a")
+                J = K.ideal(p).factor()[0][0]
+                F = E.base_extend(K)
+                if not(F.has_additive_reduction(J)):
+                    if F.has_split_multiplicative_reduction(J):
+                        red = "pot. split multiplicative"
+                    elif F.has_nonsplit_multiplicative_reduction(J):
+                        red = "pot. non-split multiplicative"
+                    elif F.reduction(J).is_ordinary(J):
+                        red = "pot. good ordinary"
+                    else:
+                        red = "pot. supersingular"
+                    done = True
+                    break
+        i += 1
+    print(F.local_data(J))
+    return (K, red)
+    
+
+
 
