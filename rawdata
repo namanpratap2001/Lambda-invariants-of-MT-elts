@@ -9,7 +9,7 @@ print(f"E= {E.cremona_label()}, p={p}, {E}")
 print(f"ord_p(\Delta_E)={vpdelta(E,p)}, semi-stability defect e={e(E,p)}")
 
 for n in range(1,8):
-    mtn=MazurTate(E, p,n, modp=true)
+    mtn=MazurTate(E, p,n, modp=true)   #careful with modp=true ! (Most cases, it works fine, but you need to be careful if mu is not 0) 
     lambda_n=lambda_inv(mtn, p)
     print(f"n={n}, lambda(theta_n(E))= {lambda_n}, expected formula:7*p^(n-1)={7*p^(n-1)}, error={lambda_n-7*p^(n-1)}")
     
@@ -44,6 +44,33 @@ n=2, lambda(theta_n(E))= 52, expected formula:3*p^(n-1)+1=52, error=0
 n=3, lambda(theta_n(E))= 868, expected formula:3*p^(n-1)+1=868, error=0
 n=4, lambda(theta_n(E))= 14740, expected formula:3*p^(n-1)+1=14740, error=0
 n=5, lambda(theta_n(E))= 250564, expected formula:3*p^(n-1)+1=250564, error=0
+
+E=4232i1, p=23, Elliptic Curve defined by y^2 = x^3 - x^2 - 93280*x + 14810844 over Rational Field
+ord_p(\Delta_E)=10, semi-stability defect e=6
+n=1, lambda(theta_n(E))= 20, expected formula:19*p^(n-1)+1=20, error=0
+n=2, lambda(theta_n(E))= 438, expected formula:19*p^(n-1)+1=438, error=0
+n=3, lambda(theta_n(E))= 10052, expected formula:19*p^(n-1)+1=10052, error=0
+n=4, lambda(theta_n(E))= 231174, expected formula:19*p^(n-1)+1=231174, error=0
+
+Evidence for Conjecture 4.11 (curves with j_E=0 or 1728):
+#Surprisingly, the raw lambda invariants show alternating plus-minus behaviour, unlike the other cases (i.e. when the j invariant is not 0 or 1728) 
+#In these cases, once we subtract off the f_n term, we get exactly q_n + (constant independent of n)
+
+E=1089a1, p=11, Elliptic Curve defined by y^2 + y = x^3 + 30 over Rational Field
+ord_p(\Delta_E)=4, semi-stability defect e=3
+n=1, lambda(theta_n(E))= 5, expected formula:4*p^(n-1)+3*q_(n-1)=4, error=1
+n=2, lambda(theta_n(E))= 47, expected formula:4*p^(n-1)+3*q_(n-1)=44, error=3
+n=3, lambda(theta_n(E))= 515, expected formula:4*p^(n-1)+3*q_(n-1)=514, error=1
+n=4, lambda(theta_n(E))= 5657, expected formula:4*p^(n-1)+3*q_(n-1)=5654, error=3
+n=5, lambda(theta_n(E))= 62225, expected formula:4*p^(n-1)+3*q_(n-1)=62224, error=1
+
+E=1089b1, p=11, Elliptic Curve defined by y^2 + y = x^3 - 40263 over Rational Field
+ord_p(\Delta_E)=10, semi-stability defect e=6
+n=1, lambda(theta_n(E))= 1, expected formula:9*p^(n-1)+3*q_n(p,n-1)+2=11, error=-10     #mu=1 in this case, theta_1= -22*T^10 - 220*T^9 - 968*T^8 - 2464*T^7 - 4004*T^6 - 4312*T^5 - 3080*T^4 - 1430*T^3 - 440*T^2 - 88*T
+n=2, lambda(theta_n(E))= 101, expected formula:9*p^(n-1)+3*q_n(p,n-1)+2=101, error=0
+n=3, lambda(theta_n(E))= 1121, expected formula:9*p^(n-1)+3*q_n(p,n-1)+2=1121, error=0
+n=4, lambda(theta_n(E))= 12311, expected formula:9*p^(n-1)+3*q_n(p,n-1)+2=12311, error=0
+
 
 
 
