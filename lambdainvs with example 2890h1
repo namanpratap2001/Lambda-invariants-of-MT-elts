@@ -190,6 +190,7 @@ def f(E, p, n):   #this computes the contribution by the period ratios to the p-
 ##Example: 
 E=EllipticCurve("2890h1")
 p=17
+print(f"ord_p(\Delta_E)={vpdelta(E,p)}, semi-stability defect e={e(E,p)}")
 
 for n in range(1,8):  #for n>4 it takes a while :(
     mtn=MazurTate(E, p,n, modp=true)
